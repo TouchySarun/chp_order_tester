@@ -1,3 +1,65 @@
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getFirestore,
+  QuerySnapshot,
+  setDoc,
+  getDoc,
+  where,
+  query,
+  getDocs,
+} from "firebase/firestore";
+import { db } from "../../firebaseConfig";
+
+//user collection
+export const userCollection = collection(db, "users");
+
+export const getUser = async (username: string) => {
+  const q = query(userCollection, where("username", "==", username));
+
+  const docSnap = await getDocs(q);
+
+  if (!docSnap.empty) {
+    return {
+      ok: true,
+      data: docSnap.docs[0].data() as UserType,
+    };
+  } else {
+    return {
+      ok: false,
+    };
+  }
+};
+//register
+export const addUser = async (user: UserRegisterType) => {
+  const newUser = await addDoc(userCollection, {
+    ...user,
+    name: "default-name",
+    role: "default-role",
+    branch: "default-branch",
+    ap: [],
+  });
+  console.log("Success create new Hotel with ID:", newUser.id);
+  return newUser;
+};
+
+// //delete
+// export const deleteHotel = async (hotelId: string) => {
+//   // get old document for ref
+//   const document = doc(firestore, `Hotel/${hotelId}`);
+//   // deleteDoc need ref to delete
+//   await deleteDoc(document);
+//   console.log("Success delete Hotel Id :", hotelId);
+// };
+
+// export const editHotel = async (hotelId: string, hotel: HotelType) => {
+//   const document = doc(firestore, `Hotel/${hotelId}`);
+//   await setDoc(document, hotel, { merge: true });
+//   console.log("Success update hotel");
+// };
+
 export const getUsers = () => {
   return [
     {
