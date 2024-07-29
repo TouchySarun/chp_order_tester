@@ -13,6 +13,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 
+interface GetUserResType {
+  ok: boolean;
+  data?: UserType;
+}
+
 //user collection
 export const userCollection = collection(db, "users");
 
@@ -24,12 +29,26 @@ export const getUser = async (username: string) => {
   if (!docSnap.empty) {
     return {
       ok: true,
-      data: docSnap.docs[0].data() as UserType,
-    };
+      data: { id: docSnap.docs[0].id, ...docSnap.docs[0].data() } as UserType,
+    } as GetUserResType;
   } else {
     return {
       ok: false,
-    };
+    } as GetUserResType;
+  }
+};
+export const getUserById = async (id: string) => {
+  const docRef = doc(db, "users", id);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    console.log("Success, get user by id:", id);
+    console.log("User data", docSnap.data());
+    return docSnap.data() as UserType;
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document!");
+    return null;
   }
 };
 //register

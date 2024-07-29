@@ -1,28 +1,40 @@
 "use client";
-import { getUser } from "@/lib/user";
-import Link from "next/link";
-import { useRouter } from "next/router";
+
 import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signIn, useSession } from "next-auth/react";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const router = useRouter();
+
+  const { data: session } = useSession();
+  if (session) router.replace("/");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const res = await getUser(username);
-    if (!res.ok) {
-      setError("User not exists.");
-      return;
-    }
-    if (res.data) {
-      const user = res.data;
-      if (user.password !== password) {
-        setError("Wrong password.");
+    try {
+      const res = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      });
+      if (res?.ok) {
+        console.log("login success");
+        console.log(res);
+
+        // router.replace("/order");
+      } else {
+        console.log("login error", res?.error);
+        return;
       }
-      console.log(user);
+    } catch (err) {
+      console.log(err);
     }
   };
 
