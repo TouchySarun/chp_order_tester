@@ -1,15 +1,28 @@
 "use client";
 import Navbar from "@/app/components/navbar";
-import { getUserById } from "@/lib/user";
+import { getRolesNBranches } from "@/lib/system";
+import { editUser, getUserById } from "@/lib/user";
 import { signOut, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 
 interface ProfilePageProps {
   params: {
     id: string;
   };
 }
+
+const isEqual = (obj1: any, obj2: any) => {
+  const keys1 = Object.keys(obj1);
+
+  for (let key of keys1) {
+    if (obj1[key] !== obj2[key]) {
+      return false;
+    }
+  }
+
+  return true;
+};
 
 function ProfilePage({ params }: ProfilePageProps) {
   const { data: session, status } = useSession();
@@ -19,6 +32,11 @@ function ProfilePage({ params }: ProfilePageProps) {
   const [isEdit, setIsEdit] = useState(false);
   const [isSelectingAP, setIsSelectingAP] = useState(false);
 
+  const [branches, setBranches] = useState<string[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
+
+  const [userData, setUserData] = useState<UserType>();
+  // newUserData
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
@@ -36,13 +54,70 @@ function ProfilePage({ params }: ProfilePageProps) {
         setRole(user.role);
         setBranch(user.branch);
         setAP(user.ap);
+        setUserData(user);
       }
     } catch (err) {
-      console.log("Error, trying get user by id : ", err);
+      console.log("Error, get user by id. :", err);
+    }
+  };
+
+  const handleGetRolesNBranches = async () => {
+    try {
+      const { roles, branches } = await getRolesNBranches();
+      setRoles(roles);
+      setBranches(branches);
+    } catch (err) {
+      console.log("Error get roles and branches. :", err);
+    }
+  };
+
+  const handleEdit = async (force: boolean) => {
+    if (!session || !userData) return;
+    if (!isEdit) {
+      setIsEdit(true);
+      return;
+    }
+    try {
+      // check data b4 edit
+      const newUserData: UserType = {
+        username: session.user?.username, // just type error every thing ok
+        name,
+        password,
+        role,
+        branch,
+        ap,
+      };
+      const isChange = !isEqual(userData, newUserData);
+      if (!isChange) {
+        setIsEdit(false);
+        return;
+      }
+      // have change
+      if (!force) {
+        if (!window.confirm("ยกเลิกข้อมูลที่บันทึก?")) {
+          setName(userData.name);
+          setPassword(userData.password);
+          setRole(userData.role);
+          setBranch(userData.branch);
+          setAP(userData.ap);
+          setIsEdit(false);
+          return;
+        }
+      }
+      // edit
+      const success = await editUser(session.user?.id, newUserData);
+      if (success) {
+        alert("แก้ไขสำเร็จ");
+        setUserData(newUserData);
+        setIsEdit(false);
+      }
+    } catch (err) {
+      console.log("Error, edit user. :", err);
     }
   };
   useEffect(() => {
     handleGetUserById();
+    handleGetRolesNBranches();
   }, []);
 
   return (
@@ -55,18 +130,26 @@ function ProfilePage({ params }: ProfilePageProps) {
           </h1>
           <button
             className="bg-blue-100 rounded-lg shadow-lg p-2"
-            onClick={() => setIsEdit((e) => !e)}
+            onClick={() => handleEdit(false)}
           >
             edit
           </button>
         </div>
         <div className="rounded-lg border shadow-lg p-2 mt-2">
+          <div className="grid grid-cols-4 gap-2 items-center text-gray-400 my-4">
+            <p>USERNAME:</p>
+            <p className="p-2 w-full col-span-3">{session?.user?.username}</p>
+          </div>
           {isEdit ? (
-            <form action="" className="flex flex-col justify-between min-h-64">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleEdit(true);
+              }}
+              className="flex flex-col gap-4 min-h-[350px]"
+            >
               <div className="grid grid-cols-4 gap-2 items-center">
-                <label htmlFor="name" className="text-right">
-                  name:
-                </label>
+                <label htmlFor="name">name:</label>
                 <input
                   type="text"
                   name="name"
@@ -79,9 +162,7 @@ function ProfilePage({ params }: ProfilePageProps) {
                 />
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <label htmlFor="password" className="text-right">
-                  password:
-                </label>
+                <label htmlFor="password">password:</label>
                 <input
                   type="text"
                   name="password"
@@ -94,68 +175,86 @@ function ProfilePage({ params }: ProfilePageProps) {
                 />
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <label htmlFor="branch" className="text-right">
-                  role:
-                </label>
-                <input
-                  type="text"
+                <label htmlFor="role">role:</label>
+                <select
                   name="role"
                   id="role"
+                  className="p-2 w-full col-span-3 flex gap-2 flex-wrap border rounded-md shadow-md"
                   value={role}
-                  onChange={(e) => {
-                    setRole(e.target.value);
-                  }}
-                  className="p-2 border rounded-md shadow-md w-full col-span-3"
-                />
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="default-role">default-role</option>
+                  {roles.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <label htmlFor="branch" className="text-right">
-                  branch:
-                </label>
-                <p className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
-                  {branch}
-                </p>
-                <button className="p-2 border rounded-md shadow-md ">
-                  เปลี่ยนสาขา
-                </button>
+                <label htmlFor="branch">branch:</label>
+                <select
+                  name="branch"
+                  id="branch"
+                  className="p-2 w-full col-span-3 flex gap-2 flex-wrap border rounded-md shadow-md"
+                  value={branch}
+                  onChange={(e) => setBranch(e.target.value)}
+                >
+                  <option value="default-branch">default-branch</option>
+                  {branches.map((br) => (
+                    <option key={br} value={br}>
+                      {br}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <label htmlFor="ap" className="text-right">
-                  ap:
-                </label>
+                <label htmlFor="ap">ap:</label>
                 <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
-                    <p className="p-2 bg-gray-300 rounded">{a.name}</p>
+                    <p className="p-2 bg-gray-300 rounded" key={a.code}>
+                      {a.name}
+                    </p>
                   ))}
                 </div>
                 <button className="p-2 border rounded-md shadow-md">
                   เปลี่ยนเจ้าหนี้
                 </button>
               </div>
+              <button
+                type="submit"
+                className="mt-4 bg-green-500 text-white w-full p-2 rounded-lg shadow-md"
+              >
+                บันทึก
+              </button>
             </form>
           ) : (
-            <div className="flex flex-col justify-between min-h-64">
+            <div className="flex flex-col gap-4 min-h-[350px]">
               <div className="grid grid-cols-4 gap-2 items-center">
-                <p className="text-right">name:</p>
+                <p>name:</p>
                 <p className="p-2 w-full col-span-3">{name}</p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <p className="text-right">password:</p>
-                <p className="p-2 w-full col-span-3">{password.length}</p>
+                <p>password:</p>
+                <p className="p-2 w-full col-span-3">
+                  {"*".repeat(password.length)}
+                </p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <p className="text-right">role:</p>
+                <p>role:</p>
                 <p className="p-2 w-full col-span-3">{role}</p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <p className="text-right">branch:</p>
+                <p>branch:</p>
                 <p className="p-2 w-full col-span-3">{branch}</p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
-                <p className="text-right">ap:</p>
-                <div className="p-2 w-full col-span-2 flex gap-2">
+                <p>ap:</p>
+                <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
-                    <p className="p-2 bg-gray-300 rounded">{a.name}</p>
+                    <p className="p-2 bg-gray-300 rounded" key={a.code}>
+                      {a.name}
+                    </p>
                   ))}
                 </div>
               </div>

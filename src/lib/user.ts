@@ -1,10 +1,7 @@
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
-  getFirestore,
-  QuerySnapshot,
   setDoc,
   getDoc,
   where,
@@ -12,6 +9,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import { firestore } from "./controller";
 
 interface GetUserResType {
   ok: boolean;
@@ -42,8 +40,6 @@ export const getUserById = async (id: string) => {
   const docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
-    console.log("Success, get user by id:", id);
-    console.log("User data", docSnap.data());
     return docSnap.data() as UserType;
   } else {
     // docSnap.data() will be undefined in this case
@@ -60,8 +56,19 @@ export const addUser = async (user: UserRegisterType) => {
     branch: "default-branch",
     ap: [],
   });
-  console.log("Success create new Hotel with ID:", newUser.id);
+  console.log("Success create new User with ID:", newUser.id);
   return newUser;
+};
+// edit
+export const editUser = async (userId: string, user: UserType) => {
+  try {
+    const document = doc(firestore, `users/${userId}`);
+    await setDoc(document, user, { merge: true });
+    return true;
+  } catch (err) {
+    console.log("Fail edit user. :", err);
+    return false;
+  }
 };
 
 // //delete
