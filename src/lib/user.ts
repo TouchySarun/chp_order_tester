@@ -9,7 +9,6 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
-import { firestore } from "./controller";
 
 interface GetUserResType {
   ok: boolean;
@@ -62,7 +61,7 @@ export const addUser = async (user: UserRegisterType) => {
 // edit
 export const editUser = async (userId: string, user: UserType) => {
   try {
-    const document = doc(firestore, `users/${userId}`);
+    const document = doc(db, `users/${userId}`);
     await setDoc(document, user, { merge: true });
     return true;
   } catch (err) {
