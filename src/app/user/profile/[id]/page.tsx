@@ -1,10 +1,11 @@
 "use client";
 import Navbar from "@/app/components/navbar";
+import ApSelector from "@/app/components/selector/ap";
 import { getRolesNBranches } from "@/lib/system";
 import { editUser, getUserById } from "@/lib/user";
 import { signOut, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface ProfilePageProps {
   params: {
@@ -34,6 +35,7 @@ function ProfilePage({ params }: ProfilePageProps) {
 
   const [branches, setBranches] = useState<string[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
+  const [selectedAP, setSelectedAP] = useState<string[]>([]);
 
   const [userData, setUserData] = useState<UserType>();
   // newUserData
@@ -123,11 +125,19 @@ function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div>
       <Navbar session={session} />
+      {isSelectingAP && (
+        <ApSelector
+          onClose={() => setIsSelectingAP(false)}
+          selectedAP={selectedAP}
+        />
+      )}
       <div className="container mx-auto py-10 px-5">
         <div className="flex justify-between">
           <h1 className="text-3xl text-orange-600 font-bold">
             ตั้งค่าผู้ใช้งาน
           </h1>
+          isEdit:
+          {isEdit ? "true" : "false"}
           <button
             className="bg-blue-100 rounded-lg shadow-lg p-2"
             onClick={() => handleEdit(false)}
@@ -217,7 +227,11 @@ function ProfilePage({ params }: ProfilePageProps) {
                     </p>
                   ))}
                 </div>
-                <button className="p-2 border rounded-md shadow-md">
+                <button
+                  className="p-2 border rounded-md shadow-md"
+                  type="button"
+                  onClick={() => setIsSelectingAP(true)}
+                >
                   เปลี่ยนเจ้าหนี้
                 </button>
               </div>

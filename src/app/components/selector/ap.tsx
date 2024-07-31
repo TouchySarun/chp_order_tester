@@ -13,9 +13,9 @@ function ApSelector({
   const [aps, setAps] = useState<APType[]>([]);
   const [selectedAP, setSelectedAP] = useState<string[]>(hasBeenSelectedAP);
   const [query, setQuery] = useState("");
-  const handleGetAps = () => {
+  const handleGetAps = async () => {
     // search ap by query
-    const res = getAps();
+    const res = await getAps();
     setAps(res);
   };
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,8 +30,7 @@ function ApSelector({
   };
 
   useEffect(() => {
-    const res = getAps();
-    setAps(res);
+    handleGetAps();
   }, []);
 
   return (

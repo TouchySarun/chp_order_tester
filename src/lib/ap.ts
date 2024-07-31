@@ -1,4 +1,13 @@
-export const getAps = () => {
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../firebaseConfig";
+
+const apCollection = collection(db, "aps");
+
+export const getAps = async () => {
+  const docSnap = await getDocs(apCollection);
+
+  return docSnap.docs.map((doc) => doc.data()) as APType[];
+
   return [
     {
       id: "1",
