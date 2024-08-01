@@ -35,7 +35,6 @@ function ProfilePage({ params }: ProfilePageProps) {
 
   const [branches, setBranches] = useState<string[]>([]);
   const [roles, setRoles] = useState<string[]>([]);
-  const [selectedAP, setSelectedAP] = useState<string[]>([]);
 
   const [userData, setUserData] = useState<UserType>();
   // newUserData
@@ -128,7 +127,8 @@ function ProfilePage({ params }: ProfilePageProps) {
       {isSelectingAP && (
         <ApSelector
           onClose={() => setIsSelectingAP(false)}
-          selectedAP={selectedAP}
+          selectedAP={ap}
+          setSelectedAP={setAP}
         />
       )}
       <div className="container mx-auto py-10 px-5">
@@ -136,8 +136,6 @@ function ProfilePage({ params }: ProfilePageProps) {
           <h1 className="text-3xl text-orange-600 font-bold">
             ตั้งค่าผู้ใช้งาน
           </h1>
-          isEdit:
-          {isEdit ? "true" : "false"}
           <button
             className="bg-blue-100 rounded-lg shadow-lg p-2"
             onClick={() => handleEdit(false)}

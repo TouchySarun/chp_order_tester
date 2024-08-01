@@ -4,14 +4,16 @@ import React, { useEffect, useState } from "react";
 
 interface ApSelectorProps {
   onClose: () => void;
-  selectedAP?: string[];
+  selectedAP?: APType[];
+  setSelectedAP?: (ap: APType[]) => void;
 }
 function ApSelector({
   onClose,
   selectedAP: hasBeenSelectedAP = [],
+  setSelectedAP: setHasBeenSelectedAP,
 }: ApSelectorProps) {
   const [aps, setAps] = useState<APType[]>([]);
-  const [selectedAP, setSelectedAP] = useState<string[]>(hasBeenSelectedAP);
+  const [selectedAP, setSelectedAP] = useState<APType[]>(hasBeenSelectedAP);
   const [query, setQuery] = useState("");
   const handleGetAps = async () => {
     // search ap by query
@@ -19,14 +21,31 @@ function ApSelector({
     setAps(res);
   };
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checkingAp = e.target.value;
-    const temp = selectedAP.filter((ap) => ap !== checkingAp);
+    const checkingApCode = e.target.value;
+    const checkingAp = aps.find((ap) => ap.code === checkingApCode);
+    if (!checkingAp) {
+      alert("Error in select ap, no ap");
+      return;
+    }
+
+    const temp = selectedAP.filter((ap) => ap.code !== checkingApCode);
 
     if (temp.length === selectedAP.length) {
       setSelectedAP([...selectedAP, checkingAp]);
     } else {
       setSelectedAP(temp);
     }
+  };
+  const handleClose = (force: boolean) => {
+    if (!setHasBeenSelectedAP) return;
+    if (!force) {
+      if (window.confirm("ยกเลิกข้อมูลที่บันทึก?")) {
+        onClose();
+        return;
+      }
+    }
+    setHasBeenSelectedAP(selectedAP);
+    onClose();
   };
 
   useEffect(() => {
@@ -61,7 +80,7 @@ function ApSelector({
                     <button
                       type="button"
                       className="inline-flex justify-center rounded-md bg-white px-3 py-2 text-sm text-gray-900 shadow-md ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                      onClick={onClose}
+                      onClick={() => handleClose(false)}
                     >
                       ยกเลิก
                     </button>
@@ -80,15 +99,16 @@ function ApSelector({
                     <div className=" h-[400px] overflow-scroll">
                       {aps.map((ap) => (
                         <label
-                          htmlFor={"ap_" + ap.id}
+                          key={`ap_${ap.code}`}
+                          htmlFor={`ap_${ap.code}`}
                           className="flex gap-2 p-2" // todo change to grid & col
                         >
                           <input
                             type="checkbox"
-                            id={"ap_" + ap.id}
+                            id={`ap_${ap.code}`}
                             name="aps"
                             value={ap.code}
-                            checked={selectedAP.includes(ap.code)}
+                            checked={selectedAP.some((a) => a.code === ap.code)}
                             onChange={handleCheck}
                           />
                           <p>{ap.code}</p>
@@ -102,7 +122,10 @@ function ApSelector({
               </div>
             </div>
             <div className="flex flex-col px-4 py-3">
-              <button className="text-white text-lg p-2 bg-green-500 rounded-md shadow-md">
+              <button
+                className="text-white text-lg p-2 bg-green-500 rounded-md shadow-md"
+                onClick={() => handleClose(true)}
+              >
                 ยืนยัน
               </button>
             </div>
