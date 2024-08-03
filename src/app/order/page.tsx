@@ -69,8 +69,11 @@ function OrderPage() {
     }
   };
 
-  const handleCancle = () => {
+  const resetData = () => {
     setSKU(undefined);
+    setBarcode("");
+    setSelectBarcode("");
+    setQty("");
   };
 
   const handleSubmit = async () => {
@@ -136,16 +139,34 @@ function OrderPage() {
       setOrder(newOrder);
     }
     setShowSuccess(true);
-    setSKU(undefined);
-    setBarcode("");
-    setSelectBarcode("");
+    resetData();
+  };
+  const handleEditOrder = async (newOrder: OrderType) => {
+    if (!order || !order.id) {
+      return;
+    }
+    const res = await editOrder(order.id, newOrder);
+    if (!res.ok) {
+      alert("Error, update order");
+      return;
+    }
+    setOrder(newOrder);
+    setShowSuccess(true);
+    resetData();
   };
 
   return (
     <>
       <Navbar session={session} />
       <div className="container mx-auto py-10 px-5">
-        {showEdit && <EditOrder onClose={() => setShowEdit(false)} />}
+        {showEdit && order && sku && (
+          <EditOrder
+            order={order}
+            sku={sku}
+            onClose={() => setShowEdit(false)}
+            setOrder={handleEditOrder}
+          />
+        )}
         <h1 className="text-3xl text-orange-600 font-bold">สั่งสินค้า</h1>
         <div className="flex my-3 shadow-md">
           <input
@@ -283,7 +304,7 @@ function OrderPage() {
               </div>
               <div className="flex justify-between gap-2">
                 <button
-                  onClick={handleCancle}
+                  onClick={resetData}
                   className="bg-red-500 shadow-md px-3 py-2 rounded-lg text-white"
                 >
                   ยกเลิก
