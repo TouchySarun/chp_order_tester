@@ -81,7 +81,7 @@ export const getOrderLastDate = async (sku: string, branch: string) => {
       } as OrderResType;
     }
   } catch (err) {
-    console.log("Error get order last date. :", err);
+    //console.log("Error get order last date. :", err);
   }
 };
 
