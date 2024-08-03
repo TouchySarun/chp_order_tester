@@ -3,7 +3,13 @@
 import React, { useState } from "react";
 import EditOrder from "../components/EditOrder";
 import { getSKU, getSKUByBarcode } from "@/lib/sku";
-import { getOrder, getOrderBySKU, getOrderLastDate } from "@/lib/order";
+import {
+  addOrder,
+  editOrder,
+  getOrder,
+  getOrderBySKU,
+  getOrderLastDate,
+} from "@/lib/order";
 import SuccessOrder from "../components/order/SuccessOrder";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -17,6 +23,8 @@ function OrderPage() {
   const [selectBarcode, setSelectBarcode] = useState("");
   const [sku, setSKU] = useState<SKUType>();
   const [order, setOrder] = useState<OrderType>();
+  const [qty, setQty] = useState("");
+  const [tag, setTag] = useState("");
 
   const [showEdit, setShowEdit] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -54,16 +62,83 @@ function OrderPage() {
       alert("Error getting order last date by sku. ");
       return;
     }
-    setOrderLastDate(res.data?.lstUpd?.toLocaleDateString("en-GB"));
+    if (res.data) {
+      setOrderLastDate(res.data.lstUpd?.toDate().toLocaleDateString("en-GB"));
+    } else {
+      setOrderLastDate(undefined);
+    }
   };
 
   const handleCancle = () => {
     setSKU(undefined);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!sku || !session) {
+      return;
+    }
+    const selectGoods = sku.goods.find((g) => g.code === selectBarcode);
+    if (!selectGoods) {
+      return;
+    }
+    const qtyNumber = parseInt(qty);
+    if (isNaN(qtyNumber)) {
+      alert("ใส่จำนวน");
+      return;
+    }
+    if (!order) {
+      // add new order
+      const newOrder: OrderType = {
+        startDate: new Date(),
+        name: sku.name,
+        utqName: selectGoods.utqName,
+        utqQty: selectGoods.utqQty,
+        code: selectBarcode,
+        sku: sku.id,
+        ap: sku.apCode,
+        creBy: session.user.name,
+        qty: qtyNumber,
+        leftQty: qtyNumber,
+        pending: true,
+        tag: tag,
+        branch: session.user.branch,
+        cat: sku.catCode,
+        brand: sku.brnCode,
+      };
+      console.log("newOrder :", newOrder);
+
+      const res = await addOrder(newOrder);
+      if (!res.ok) {
+        alert("Error, add new order");
+        return;
+      }
+      setOrder(newOrder);
+    } else {
+      // update old order
+      if (selectGoods.utqQty !== order.utqQty || !order.id) {
+        alert(
+          `หน่วยนับไม่ตรงกับคำสั่งเดิม ไม่สามารถเพิ่มคำสั่งได้ \n หน่วยนับต้องเป็น ${order.utqQty}`
+        );
+        return;
+      }
+
+      const newOrder: OrderType = {
+        ...order,
+        lstUpd: new Date(),
+        qty: order.qty + qtyNumber,
+        leftQty: order.leftQty + qtyNumber,
+      };
+      const res = await editOrder(order.id, newOrder);
+      if (!res.ok) {
+        alert("Error, update order");
+        return;
+      }
+      setOrder(newOrder);
+    }
     setShowSuccess(true);
     setSKU(undefined);
+    setBarcode("");
+    setSelectBarcode("");
   };
 
   return (
@@ -72,7 +147,6 @@ function OrderPage() {
       <div className="container mx-auto py-10 px-5">
         {showEdit && <EditOrder onClose={() => setShowEdit(false)} />}
         <h1 className="text-3xl text-orange-600 font-bold">สั่งสินค้า</h1>
-        <p>selectBarcode: {selectBarcode}</p>
         <div className="flex my-3 shadow-md">
           <input
             type="text"
@@ -128,7 +202,7 @@ function OrderPage() {
                         {order.utqName}
                       </p>
                       <span className="text-gray-500 text-xs">
-                        {order.startDate.toLocaleDateString("en-GB")}
+                        {order.startDate.toDate().toLocaleDateString("en-GB")}
                       </span>
                     </div>
                     <button
@@ -161,7 +235,7 @@ function OrderPage() {
               <div className="flex items-end flex-wrap">
                 <h3 className="text-xl text-gray-400">สั่งรอบปัจจุบัน</h3>
                 <span className="text-xs text-gray-400 ml-3">
-                  *ถ้ามีคำสั่งอยู่ในระบบ จะเป็นการสั่งเพิ่ม
+                  *ถ้าในระบบมีคำสั่งอยู่แล้ว จะเป็นการสั่งเพิ่ม
                 </span>
               </div>
               <div className="flex flex-col gap-1 h-48 overflow-auto p-2 border rounded">
@@ -185,7 +259,7 @@ function OrderPage() {
                       onChange={(e) => setSelectBarcode(e.target.value)}
                     />
                     <p className="col-span-2 ">{goods.code}</p>
-                    <p>{goods.utqname}</p>
+                    <p>{goods.utqName}</p>
                   </label>
                 ))}
               </div>
@@ -203,6 +277,8 @@ function OrderPage() {
                   placeholder="กรอกจำนวนสั่งสินค้า"
                   autoFocus
                   className="inline-block flex-auto w-3/4 rounded-r-lg border p-2"
+                  value={qty}
+                  onChange={(e) => setQty(e.target.value)}
                 />
               </div>
               <div className="flex justify-between gap-2">

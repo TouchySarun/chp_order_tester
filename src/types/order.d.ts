@@ -4,6 +4,7 @@ interface OrderType {
   endDate?: datetime;
   name: string;
   utqName: string;
+  utqQty: number;
   code: string;
   sku: string;
   ap: string;

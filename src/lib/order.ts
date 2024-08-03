@@ -68,7 +68,6 @@ export const getOrderLastDate = async (sku: string, branch: string) => {
     );
     const docSnap = await getDocs(q);
     if (!docSnap.empty) {
-      console.log("success ");
       return {
         ok: true,
         data: {
@@ -83,6 +82,28 @@ export const getOrderLastDate = async (sku: string, branch: string) => {
     }
   } catch (err) {
     console.log("Error get order last date. :", err);
+  }
+};
+
+export const addOrder = async (order: OrderType) => {
+  try {
+    const newOrder = await addDoc(orderCollection, order);
+    console.log("Success create new Order with ID:", newOrder.id);
+    return { ok: true } as OrderResType;
+  } catch (err) {
+    console.log("Error, create new order. :", err);
+    return { ok: false } as OrderResType;
+  }
+};
+
+export const editOrder = async (orderId: string, order: OrderType) => {
+  try {
+    const document = doc(db, `orders/${orderId}`);
+    await setDoc(document, order, { merge: true });
+    return { ok: true } as OrderResType;
+  } catch (err) {
+    console.log("Fail edit user. :", err);
+    return { ok: false } as OrderResType;
   }
 };
 

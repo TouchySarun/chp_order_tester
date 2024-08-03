@@ -14,8 +14,8 @@ interface SKUType {
 
 interface GoodsType {
   code: string;
-  utqname: string;
-  utqqty: number;
+  utqName: string;
+  utqQty: number;
   price0: number; // ราคาตาราง 0
   price8: number; // ราคาตาราง 8
 }
