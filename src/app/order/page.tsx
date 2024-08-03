@@ -25,6 +25,7 @@ function OrderPage() {
   const handleGetSKU = async () => {
     if (!session?.user) return;
     setSKU(undefined);
+    setOrder(undefined);
     setShowSuccess(false);
     const res = await getSKUByBarcode(barcode);
     if (!res || !res.ok || !res.data) {
@@ -35,10 +36,10 @@ function OrderPage() {
     setSKU(res.data);
     handleGetOrder(res.data.id, session.user.branch);
     handleGetOrderLastDate(res.data.id, session.user.branch);
+    setSelectBarcode(barcode);
   };
 
   const handleGetOrder = async (skuID: string, branch: string) => {
-    setOrder(undefined);
     const res = await getOrderBySKU(skuID, branch);
     if (!res || !res.ok) {
       alert("Error getting order by sku.");
@@ -48,7 +49,6 @@ function OrderPage() {
   };
 
   const handleGetOrderLastDate = async (skuID: string, branch: string) => {
-    setOrderLastDate("");
     const res = await getOrderLastDate(skuID, branch);
     if (!res || !res.ok) {
       alert("Error getting order last date by sku. ");
@@ -72,6 +72,7 @@ function OrderPage() {
       <div className="container mx-auto py-10 px-5">
         {showEdit && <EditOrder onClose={() => setShowEdit(false)} />}
         <h1 className="text-3xl text-orange-600 font-bold">สั่งสินค้า</h1>
+        <p>selectBarcode: {selectBarcode}</p>
         <div className="flex my-3 shadow-md">
           <input
             type="text"
@@ -171,7 +172,7 @@ function OrderPage() {
                     className={
                       "grid grid-cols-3 gap-1 rounded px-2 border" +
                       (selectBarcode === goods.code
-                        ? " bg-orange-100 py-3 shadow"
+                        ? " bg-orange-200 py-3 shadow"
                         : " bg-yellow-50 py-1")
                     }
                   >
@@ -200,6 +201,7 @@ function OrderPage() {
                   name="qty"
                   id="qty"
                   placeholder="กรอกจำนวนสั่งสินค้า"
+                  autoFocus
                   className="inline-block flex-auto w-3/4 rounded-r-lg border p-2"
                 />
               </div>

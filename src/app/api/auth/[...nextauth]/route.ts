@@ -1,7 +1,6 @@
 import NextAuth, { NextAuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUser } from "../../../../lib/user";
-import { UserType } from "@/types/user";
 
 interface Credentials {
   username: string;
