@@ -1,14 +1,32 @@
-import NextAuth from "next-auth/next";
+import NextAuth, { NextAuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getUser } from "../../../../lib/user";
 
-const authOptions = {
+interface Credentials {
+  username: string;
+  password: string;
+}
+
+interface UserTypeAuth extends User {
+  id: string;
+  username: string;
+  name: string;
+  password: string;
+  role: string;
+  branch: string;
+}
+
+const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
       credentials: {},
-      async authorize(credentials, req) {
-        const { username, password } = credentials;
+      async authorize(credentials, req): Promise<UserTypeAuth | null> {
+        if (!credentials) {
+          return null;
+        }
+
+        const { username, password } = credentials as Credentials;
 
         try {
           // get user from database
@@ -18,15 +36,15 @@ const authOptions = {
             return null;
           }
           // check user's password
-          if (password !== user.data.password) {
+          if (password !== user.data?.password) {
             console.log("Fail to log in, wrong password");
             return null;
           }
-          console.log(user.data);
           // return user
-          return user.data;
+          return user.data as UserTypeAuth;
         } catch (err) {
           console.log(err);
+          return null;
         }
       },
     }),
@@ -39,18 +57,19 @@ const authOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user, session }) {
+    async jwt({ token, user }) {
       if (user) {
         return {
           ...token,
-          id: user.id,
-          role: user.role,
-          username: user.username,
+          id: (user as UserTypeAuth).id,
+          role: (user as UserTypeAuth).role,
+          username: (user as UserTypeAuth).username,
+          branch: (user as UserTypeAuth).branch,
         };
       }
       return token;
     },
-    async session({ token, user, session }) {
+    async session({ token, session }) {
       return {
         ...session,
         user: {
@@ -58,7 +77,8 @@ const authOptions = {
           id: token.id,
           role: token.role,
           username: token.username,
-        },
+          branch: token.branch,
+        } as UserType,
       };
     },
   },
