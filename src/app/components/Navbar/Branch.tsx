@@ -33,7 +33,7 @@ function BranchNavbar() {
             </li>
           </ul>
         </div>
-        <div className="bg-orange-600 w-full h-2 sticky top-0"></div>
+        <div className="bg-amber-500 w-full h-2 sticky top-0"></div>
       </div>
     </nav>
   );
