@@ -9,16 +9,15 @@ interface NavbarInterface {
 }
 
 function Navbar({ session }: NavbarInterface) {
-  if (session)
+  if (session) {
     return session.user.role === "admin" ? (
-      <AdminNavbar />
-    ) : session.user.role === "br" ? (
-      <BranchNavbar />
-    ) : session.user.role === "dc" || session.user.role === "pc" ? (
-      <DCNavbar session={session} />
+      <AdminNavbar session={session} />
     ) : (
-      <LoginNavbar />
+      <DCNavbar session={session} />
     );
+  } else {
+    return <LoginNavbar />;
+  }
 }
 
 export default Navbar;
