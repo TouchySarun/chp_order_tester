@@ -1,10 +1,7 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import Logo from "@/../public/LogoHorizontal.png";
-import { signOut } from "next-auth/react";
 
 interface AdminNavbarInterface {
   session: any;
@@ -15,11 +12,17 @@ function AdminNavbar({ session }: AdminNavbarInterface) {
     <nav className="shadow-xl">
       <div className="container mx-auto">
         <div className="flex justify-between items-center p-1">
-          <Link href="/admin">
+          <Link href="/">
             <Image src={Logo} width={100} height={100} alt={"chp logo"} />
           </Link>
-          <ul className="flex gap-2 p-2">
-            <li>{session.user.role}</li>
+          <ul className="flex gap-4 p-2 items-center">
+            <li>
+              role: <span className="text-orange-600">{session.user.role}</span>
+            </li>
+            <li>
+              branch:
+              <span className="text-orange-600">{session.user.branch}</span>
+            </li>
             <li>
               <Link
                 href={`/user/profile/${session.user.id}`}
