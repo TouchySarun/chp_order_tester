@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import EditOrder from "../components/EditOrder";
-import { getSKU, getSKUByBarcode } from "@/lib/sku";
+import { getCreateOrderData, getSKUByBarcode } from "@/lib/sku";
 import {
   addOrder,
   editOrder,
@@ -39,6 +39,7 @@ function OrderPage() {
     setSKU(undefined);
     setOrder(undefined);
     setShowSuccess(false);
+
     const res = await getSKUByBarcode(barcode);
     if (!res || !res.ok || !res.data) {
       alert("Error getting sku by barcode.");
@@ -51,6 +52,25 @@ function OrderPage() {
     handleGetOrderLastDate(res.data.id, session.user.branch);
     setSelectBarcode(barcode);
     setLoading(false);
+  };
+
+  const handleGetData = async () => {
+    if (!session?.user) return;
+    setLoading(true);
+    setSKU(undefined);
+    setOrder(undefined);
+    setShowSuccess(false);
+
+    const res1 = await getCreateOrderData(barcode, session.user.branch);
+    if (!res1 || !res1.data) {
+      alert(res1.error);
+      setLoading(false);
+      return;
+    }
+    const { sku, order, lastOrder } = res1.data;
+    setSKU(sku);
+    setOrder(order);
+    setOrderLastDate(lastOrder.lstUpd?.todate().toLocaleDateString("en-GB"));
   };
 
   const handleGetOrder = async (skuID: string, branch: string) => {
@@ -115,7 +135,7 @@ function OrderPage() {
         cat: sku.catCode,
         brand: sku.brnCode,
       };
-      console.log("newOrder :", newOrder);
+      // console.log("newOrder :", newOrder);
 
       const res = await addOrder(newOrder);
       if (!res.ok) {
@@ -152,6 +172,7 @@ function OrderPage() {
     setShowSuccess(true);
     resetData();
   };
+
   const handleEditOrder = async (newOrder: OrderType) => {
     if (!order || !order.id) {
       return;

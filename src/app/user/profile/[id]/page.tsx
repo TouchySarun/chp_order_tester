@@ -65,7 +65,8 @@ function ProfilePage({ params }: ProfilePageProps) {
   const handleGetRolesNBranches = async () => {
     try {
       const { roles, branches } = await getRolesNBranches();
-      setRoles(roles);
+
+      setRoles(session?.user.role === "admin" ? [...roles, "admin"] : roles);
       setBranches(branches);
     } catch (err) {
       console.log("Error get roles and branches. :", err);

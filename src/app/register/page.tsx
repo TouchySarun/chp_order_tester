@@ -29,8 +29,8 @@ function RegisterPage() {
     try {
       // get user from data base
       const user = await getUser(username);
-      if (user) {
-        console.log(user);
+      if (user.data) {
+        console.log(user.data);
         setError("User already exists.");
         return;
       }

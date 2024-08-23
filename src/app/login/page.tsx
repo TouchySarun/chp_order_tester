@@ -12,8 +12,8 @@ function LoginPage() {
 
   const router = useRouter();
 
-  const { data: session } = useSession();
-  if (session) router.replace("/");
+  const { data: session, status } = useSession();
+  if (status === "authenticated") router.replace("/");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
