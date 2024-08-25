@@ -11,10 +11,12 @@ interface UserTypeAuth extends User {
   id: string;
   username: string;
   name: string;
-  password: string;
   role: string;
   branch: string;
+  rack: string;
 }
+
+const secret = process.env.NEXTAUTH_SCRET;
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -23,7 +25,7 @@ const authOptions: NextAuthOptions = {
       credentials: {},
       async authorize(credentials, req): Promise<UserTypeAuth | null> {
         if (!credentials) {
-          return null;
+          throw new Error("No credentials provided");
         }
 
         const { username, password } = credentials as Credentials;
@@ -32,19 +34,16 @@ const authOptions: NextAuthOptions = {
           // get user from database
           const user = await getUser(username);
           if (!user.ok) {
-            console.log("Fail to log in, can't find username");
-            return null;
+            throw new Error("User not found");
           }
           // check user's password
           if (password !== user.data?.password) {
-            console.log("Fail to log in, wrong password");
-            return null;
+            throw new Error("Incorrect password");
           }
           // return user
           return user.data as UserTypeAuth;
         } catch (err) {
-          console.log(err);
-          return null;
+          throw err;
         }
       },
     }),
@@ -65,6 +64,7 @@ const authOptions: NextAuthOptions = {
           role: (user as UserTypeAuth).role,
           username: (user as UserTypeAuth).username,
           branch: (user as UserTypeAuth).branch,
+          rack: (user as UserTypeAuth).rack,
         };
       }
       return token;
@@ -78,6 +78,7 @@ const authOptions: NextAuthOptions = {
           role: token.role,
           username: token.username,
           branch: token.branch,
+          rack: token.rack,
         } as UserType,
       };
     },

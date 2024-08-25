@@ -39,9 +39,10 @@ function ProfilePage({ params }: ProfilePageProps) {
   const [userData, setUserData] = useState<UserType>();
   // newUserData
   const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState<string | undefined>();
   const [role, setRole] = useState("");
   const [branch, setBranch] = useState("");
+  const [rack, setRack] = useState("");
   const [ap, setAP] = useState<APType[]>([]);
 
   const { id } = params;
@@ -88,6 +89,7 @@ function ProfilePage({ params }: ProfilePageProps) {
         role,
         branch,
         ap,
+        rack,
       };
       const isChange = !isEqual(userData, newUserData);
       if (!isChange) {
@@ -218,6 +220,19 @@ function ProfilePage({ params }: ProfilePageProps) {
                 </select>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
+                <label htmlFor="rack">rack:</label>
+                <input
+                  type="text"
+                  name="rack"
+                  id="rack"
+                  value={rack}
+                  onChange={(e) => {
+                    setRack(e.target.value);
+                  }}
+                  className="p-2 border rounded-md shadow-md w-full col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-2 items-center">
                 <label htmlFor="ap">ap:</label>
                 <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
@@ -250,7 +265,7 @@ function ProfilePage({ params }: ProfilePageProps) {
               <div className="grid grid-cols-4 gap-2 items-center">
                 <p>password:</p>
                 <p className="p-2 w-full col-span-3">
-                  {"*".repeat(password.length)}
+                  {password && "*".repeat(password.length)}
                 </p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
@@ -260,6 +275,10 @@ function ProfilePage({ params }: ProfilePageProps) {
               <div className="grid grid-cols-4 gap-2 items-center">
                 <p>branch:</p>
                 <p className="p-2 w-full col-span-3">{branch}</p>
+              </div>
+              <div className="grid grid-cols-4 gap-2 items-center">
+                <p>rack:</p>
+                <p className="p-2 w-full col-span-3">{rack}</p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
                 <p>ap:</p>

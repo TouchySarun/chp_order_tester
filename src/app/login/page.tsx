@@ -24,14 +24,8 @@ function LoginPage() {
         password,
         redirect: false,
       });
-      if (res?.ok) {
-        console.log("login success");
-        console.log(res);
-
-        // router.replace("/order");
-      } else {
-        console.log("login error", res?.error);
-        return;
+      if (res?.error) {
+        setError(res.error);
       }
     } catch (err) {
       console.log(err);
