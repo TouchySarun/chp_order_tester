@@ -28,6 +28,9 @@ function DCNavbar({ session }: DCNavbarInterface) {
         <div className="border-t-8 border-amber-500 sticky top-0">
           <ul className="flex gap-4 px-4 text-sm text-gray-400 justify-end">
             <li>
+              id: <span className="text-orange-600">{session.user.id}</span>
+            </li>
+            <li>
               rack: <span className="text-orange-600">{session.user.rack}</span>
             </li>
             <li>

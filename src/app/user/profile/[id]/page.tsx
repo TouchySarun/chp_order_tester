@@ -160,6 +160,10 @@ function ProfilePage({ params }: ProfilePageProps) {
               className="flex flex-col gap-4 min-h-[350px]"
             >
               <div className="grid grid-cols-4 gap-2 items-center">
+                <p>id:</p>
+                <p className="p-2 w-full col-span-3">{id}</p>
+              </div>
+              <div className="grid grid-cols-4 gap-2 items-center">
                 <label htmlFor="name">name:</label>
                 <input
                   type="text"
@@ -258,6 +262,10 @@ function ProfilePage({ params }: ProfilePageProps) {
             </form>
           ) : (
             <div className="flex flex-col gap-4 min-h-[350px]">
+              <div className="grid grid-cols-4 gap-2 items-center">
+                <p>id:</p>
+                <p className="p-2 w-full col-span-3">{id}</p>
+              </div>
               <div className="grid grid-cols-4 gap-2 items-center">
                 <p>name:</p>
                 <p className="p-2 w-full col-span-3">{name}</p>
