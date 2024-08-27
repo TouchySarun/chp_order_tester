@@ -1,8 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import React from "react";
-import Navbar from "../components/navbar";
 import Link from "next/link";
 
 interface JobsInterface {
@@ -12,8 +10,7 @@ interface JobsInterface {
 }
 
 function WelcomePage() {
-  const { data: session, status } = useSession();
-  if (status === "unauthenticated") redirect("/login");
+  const { data: session } = useSession();
 
   const role = session?.user.role;
   const getLink = () => {
@@ -75,7 +72,6 @@ function WelcomePage() {
 
   return (
     <div>
-      <Navbar session={session} />
       <div className="container mx-auto py-10 px-5">
         <h1 className="text-xl">Welcome</h1>
         <div className="w-full flex justify-center flex-col mt-4 gap-4 px-4">

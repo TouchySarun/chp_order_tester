@@ -83,7 +83,7 @@ const authOptions: NextAuthOptions = {
           username: token.username,
           branch: token.branch,
           rack: token.rack,
-        } as UserType,
+        } as UserTypeAuth,
       };
     },
   },

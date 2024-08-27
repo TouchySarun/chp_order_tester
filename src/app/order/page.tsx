@@ -12,13 +12,10 @@ import {
 } from "@/lib/order";
 import SuccessOrder from "../components/order/SuccessOrder";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
-import Navbar from "../components/navbar";
 import Loading from "../components/Loading";
 
 function OrderPage() {
-  const { data: session, status } = useSession();
-  if (status === "unauthenticated") redirect("/login");
+  const { data: session } = useSession();
 
   const [barcode, setBarcode] = useState("");
   const [selectBarcode, setSelectBarcode] = useState("");
@@ -189,7 +186,6 @@ function OrderPage() {
 
   return (
     <>
-      <Navbar session={session} />
       <div className="container mx-auto py-10 px-5">
         {showEdit && order && sku && (
           <EditOrder

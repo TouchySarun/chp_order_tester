@@ -28,8 +28,6 @@ const isEqual = (obj1: any, obj2: any) => {
 function ProfilePage({ params }: ProfilePageProps) {
   const { data: session, status } = useSession();
 
-  if (status === "unauthenticated") redirect("/login");
-
   const [isEdit, setIsEdit] = useState(false);
   const [isSelectingAP, setIsSelectingAP] = useState(false);
 
@@ -127,7 +125,6 @@ function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div>
-      <Navbar session={session} />
       {isSelectingAP && (
         <ApSelector
           onClose={() => setIsSelectingAP(false)}

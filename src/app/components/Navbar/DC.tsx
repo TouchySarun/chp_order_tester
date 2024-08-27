@@ -4,13 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import Logo from "@/../public/LogoHorizontal.png";
-import { signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
-interface DCNavbarInterface {
-  session: any;
-}
-
-function DCNavbar({ session }: DCNavbarInterface) {
+function DCNavbar() {
+  const { data: session } = useSession();
+  if (!session) return;
   return (
     <nav>
       <div className="container mx-auto">

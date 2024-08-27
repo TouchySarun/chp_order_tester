@@ -2,12 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import Logo from "@/../public/LogoHorizontal.png";
+import { useSession } from "next-auth/react";
 
-interface AdminNavbarInterface {
-  session: any;
-}
+function AdminNavbar() {
+  const { data: session, status } = useSession();
+  if (!session) return;
 
-function AdminNavbar({ session }: AdminNavbarInterface) {
   return (
     <nav className="shadow-xl">
       <div className="container mx-auto">

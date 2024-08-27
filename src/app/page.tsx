@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import Navbar from "./components/navbar";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -11,7 +10,6 @@ export default function Home() {
 
   return (
     <main>
-      <Navbar session={session} />
       <div className="container mx-auto py-10 px-5">
         <h1 className="text-xl">Home page</h1>
         <div className="w-full flex justify-center flex-col border p-2 rounded-lg shadow-lg mt-4">
