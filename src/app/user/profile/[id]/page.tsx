@@ -57,6 +57,7 @@ function ProfilePage({ params }: ProfilePageProps) {
         setBranch(user.branch);
         setAP(user.ap);
         setUserData(user);
+        setRack(user.rack);
       }
     } catch (err) {
       console.log("Error, get user by id. :", err);
