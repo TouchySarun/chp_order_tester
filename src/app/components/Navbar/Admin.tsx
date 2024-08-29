@@ -4,7 +4,7 @@ import React from "react";
 import Logo from "@/../public/LogoHorizontal.png";
 import { useSession } from "next-auth/react";
 
-function AdminNavbar() {
+const AdminNavbar = () => {
   const { data: session, status } = useSession();
   if (!session) return;
 
@@ -37,6 +37,6 @@ function AdminNavbar() {
       <div className="bg-amber-500 w-full h-2 sticky top-0"></div>
     </nav>
   );
-}
+};
 
 export default AdminNavbar;

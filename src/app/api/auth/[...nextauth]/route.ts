@@ -14,9 +14,12 @@ interface UserTypeAuth extends User {
   role: string;
   branch: string;
   rack: string;
+  password: string;
 }
 
-const secret = process.env.NEXTAUTH_SCRET;
+interface UserSession extends Session {
+  user: UserTypeAuth;
+}
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -50,7 +53,7 @@ const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 2 * 60, // 30 days
+    maxAge: /*30 * 24 * */ 2 * 60, // 30 days
   },
   jwt: {
     maxAge: 2 * 60,
@@ -73,7 +76,7 @@ const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ token, session }) {
+    async session({ session, token }) {
       return {
         ...session,
         user: {
@@ -83,8 +86,8 @@ const authOptions: NextAuthOptions = {
           username: token.username,
           branch: token.branch,
           rack: token.rack,
-        } as UserTypeAuth,
-      };
+        },
+      } as UserSession;
     },
   },
 };
