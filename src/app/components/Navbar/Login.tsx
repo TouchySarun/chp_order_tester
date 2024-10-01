@@ -5,10 +5,13 @@ import Link from "next/link";
 import React, { useEffect } from "react";
 import Logo from "@/../public/LogoHorizontal.png";
 import { usePathname, redirect } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { allowedPathNoAuth } from "@/lib/globalConst";
 
 const LoginNavbar = () => {
-  if (!usePathname().includes("login")) {
+  const allowed = allowedPathNoAuth.some((path) =>
+    usePathname().includes(path)
+  );
+  if (!allowed) {
     redirect("/login");
   }
 

@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 
 function Navbar() {
   const { data: session } = useSession();
-  if (session) {
+  if (session?.user) {
     return session.user.role === "admin" ? <AdminNavbar /> : <DCNavbar />;
   } else {
     return <LoginNavbar />;

@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getUser } from "../../../../lib/user";
+import axios, { setAccessToken } from "../../axios";
 
 interface Credentials {
   username: string;
@@ -15,6 +15,7 @@ interface UserTypeAuth extends User {
   branch: string;
   rack: string;
   password: string;
+  accessToken: string;
 }
 
 interface UserSession extends Session {
@@ -30,21 +31,16 @@ const authOptions: NextAuthOptions = {
         if (!credentials) {
           throw new Error("No credentials provided");
         }
-
         const { username, password } = credentials as Credentials;
-
         try {
-          // get user from database
-          const user = await getUser(username);
-          if (!user.ok) {
-            throw new Error("User not found");
+          const res = await axios.post("/login", { username, password });
+          const user = res.data;
+          if (user.error) {
+            throw new Error(user.error);
+          } else {
+            setAccessToken(user.accessToken);
+            return user as UserTypeAuth;
           }
-          // check user's password
-          if (password !== user.data?.password) {
-            throw new Error("Incorrect password");
-          }
-          // return user
-          return user.data as UserTypeAuth;
         } catch (err) {
           throw err;
         }
@@ -53,10 +49,10 @@ const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: "jwt",
-    maxAge: /*30 * 24 * */ 2 * 60, // 30 days
+    maxAge: 30 * 24 * 2 * 60, // 30 days
   },
   jwt: {
-    maxAge: 2 * 60,
+    maxAge: 30 * 24 * 2 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
@@ -67,11 +63,7 @@ const authOptions: NextAuthOptions = {
       if (user) {
         return {
           ...token,
-          id: (user as UserTypeAuth).id,
-          role: (user as UserTypeAuth).role,
-          username: (user as UserTypeAuth).username,
-          branch: (user as UserTypeAuth).branch,
-          rack: (user as UserTypeAuth).rack,
+          ...user,
         };
       }
       return token;
@@ -81,11 +73,7 @@ const authOptions: NextAuthOptions = {
         ...session,
         user: {
           ...session.user,
-          id: token.id,
-          role: token.role,
-          username: token.username,
-          branch: token.branch,
-          rack: token.rack,
+          ...token,
         },
       } as UserSession;
     },

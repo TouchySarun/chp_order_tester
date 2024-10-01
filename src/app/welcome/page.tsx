@@ -1,7 +1,8 @@
 "use client";
 import { useSession } from "next-auth/react";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { setAccessToken } from "../api/axios";
 
 interface JobsInterface {
   name: string;
@@ -69,6 +70,11 @@ function WelcomePage() {
     }
     return jobs;
   };
+  useEffect(() => {
+    if (session?.user?.accessToken) {
+      setAccessToken(session.user.accessToken);
+    }
+  }, [session]);
 
   return (
     <div>

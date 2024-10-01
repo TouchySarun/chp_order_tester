@@ -26,7 +26,8 @@ const isEqual = (obj1: any, obj2: any) => {
 };
 
 function ProfilePage({ params }: ProfilePageProps) {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+  const accessToken = session?.user.accessToken;
 
   const [isEdit, setIsEdit] = useState(false);
   const [isSelectingAP, setIsSelectingAP] = useState(false);
@@ -47,7 +48,9 @@ function ProfilePage({ params }: ProfilePageProps) {
 
   const handleGetUserById = async () => {
     try {
-      const user = await getUserById(id);
+      if (!accessToken) return;
+      const user = await getUserById(id, accessToken);
+      // console.log(user);
       if (user) {
         setName(user.name);
         setPassword(user.password);
@@ -65,6 +68,9 @@ function ProfilePage({ params }: ProfilePageProps) {
   const handleGetRolesNBranches = async () => {
     try {
       const { roles, branches } = await getRolesNBranches();
+      if (!roles.length || !branches.length) {
+        return;
+      }
 
       setRoles(session?.user.role === "admin" ? [...roles, "admin"] : roles);
       setBranches(branches);
@@ -82,7 +88,7 @@ function ProfilePage({ params }: ProfilePageProps) {
     try {
       // check data b4 edit
       const newUserData: UserType = {
-        username: session.user?.username, // just type error every thing ok
+        username: session.user?.username,
         name,
         password,
         role,

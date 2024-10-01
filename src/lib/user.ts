@@ -3,12 +3,12 @@ import {
   collection,
   doc,
   setDoc,
-  getDoc,
   where,
   query,
   getDocs,
 } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
+import axios from "@/app/api/axios";
 
 interface GetUserResType {
   ok: boolean;
@@ -34,17 +34,30 @@ export const getUser = async (username: string) => {
     } as GetUserResType;
   }
 };
-export const getUserById = async (id: string) => {
-  const docRef = doc(db, "users", id);
-  const docSnap = await getDoc(docRef);
-
-  if (docSnap.exists()) {
-    return docSnap.data() as UserType;
-  } else {
-    // docSnap.data() will be undefined in this case
-    console.log("No such document!");
-    return null;
+export const getUserById = async (id: string, accessToken: string) => {
+  try {
+    const res = await axios.get(`user/${id}`);
+    // console.log(res);
+    const user = await res.data;
+    if (user.error) {
+      throw new Error(user.error);
+    } else {
+      return user as UserType;
+    }
+  } catch (err) {
+    throw err;
   }
+
+  // const docRef = doc(db, "users", id);
+  // const docSnap = await getDoc(docRef);
+
+  // if (docSnap.exists()) {
+  //   return docSnap.data() as UserType;
+  // } else {
+  //   // docSnap.data() will be undefined in this case
+  //   console.log("No such document!");
+  //   return null;
+  // }
 };
 //register
 export const addUser = async (user: UserRegisterType) => {
