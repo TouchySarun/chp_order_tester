@@ -34,10 +34,10 @@ export const getUser = async (username: string) => {
     } as GetUserResType;
   }
 };
-export const getUserById = async (id: string, accessToken: string) => {
+export const getUserById = async (id: string) => {
   try {
-    const res = await axios.get(`user/${id}`);
-    // console.log(res);
+    const res = await axios.get(`users/${id}`);
+    console.log(res);
     const user = await res.data;
     if (user.error) {
       throw new Error(user.error);

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const DEFAULT_PATH = "http://localhost:3000/api/";
+const DEFAULT_PATH = "http://localhost:8000/api/";
 
 let token: string | null = null;
 
@@ -10,6 +10,7 @@ export const setAccessToken = (accessToken: string) => {
 
 const axiosInstance = axios.create({
   baseURL: DEFAULT_PATH,
+  timeout: 5000, // Set to 5 seconds (or any other time)
 });
 
 axiosInstance.interceptors.request.use(

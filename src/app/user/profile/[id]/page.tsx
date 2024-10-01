@@ -48,8 +48,8 @@ function ProfilePage({ params }: ProfilePageProps) {
 
   const handleGetUserById = async () => {
     try {
-      if (!accessToken) return;
-      const user = await getUserById(id, accessToken);
+      // if (!accessToken) return;
+      const user = await getUserById(id);
       // console.log(user);
       if (user) {
         setName(user.name);
