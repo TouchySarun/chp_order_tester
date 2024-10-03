@@ -4,16 +4,16 @@ import React, { useEffect, useState } from "react";
 
 interface ApSelectorProps {
   onClose: () => void;
-  selectedAP?: APType[];
-  setSelectedAP?: (ap: APType[]) => void;
+  selectedAP?: string[];
+  setSelectedAP?: (ap: string[]) => void;
 }
 function ApSelector({
   onClose,
   selectedAP: hasBeenSelectedAP = [],
   setSelectedAP: setHasBeenSelectedAP,
 }: ApSelectorProps) {
-  const [aps, setAps] = useState<APType[]>([]);
-  const [selectedAP, setSelectedAP] = useState<APType[]>(hasBeenSelectedAP);
+  const [aps, setAps] = useState<string[]>([]);
+  const [selectedAP, setSelectedAP] = useState<string[]>(hasBeenSelectedAP);
   const [query, setQuery] = useState("");
   const handleGetAps = async () => {
     // search ap by query
@@ -22,13 +22,13 @@ function ApSelector({
   };
   const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checkingApCode = e.target.value;
-    const checkingAp = aps.find((ap) => ap.code === checkingApCode);
+    const checkingAp = aps.find((ap) => ap === checkingApCode);
     if (!checkingAp) {
       alert("Error in select ap, no ap");
       return;
     }
 
-    const temp = selectedAP.filter((ap) => ap.code !== checkingApCode);
+    const temp = selectedAP.filter((ap) => ap !== checkingApCode);
 
     if (temp.length === selectedAP.length) {
       setSelectedAP([...selectedAP, checkingAp]);
@@ -99,21 +99,19 @@ function ApSelector({
                     <div className=" h-[400px] overflow-scroll">
                       {aps.map((ap) => (
                         <label
-                          key={`ap_${ap.code}`}
-                          htmlFor={`ap_${ap.code}`}
+                          key={`ap_${ap}`}
+                          htmlFor={`ap_${ap}`}
                           className="flex gap-2 p-2" // todo change to grid & col
                         >
                           <input
                             type="checkbox"
-                            id={`ap_${ap.code}`}
+                            id={`ap_${ap}`}
                             name="aps"
-                            value={ap.code}
-                            checked={selectedAP.some((a) => a.code === ap.code)}
+                            value={ap}
+                            checked={selectedAP.some((a) => a === ap)}
                             onChange={handleCheck}
                           />
-                          <p>{ap.code}</p>
-                          <p>{ap.name}</p>
-                          <p>{ap.remark}</p>
+                          <p>{ap}</p>
                         </label>
                       ))}
                     </div>

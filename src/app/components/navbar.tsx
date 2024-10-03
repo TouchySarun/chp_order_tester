@@ -1,20 +1,15 @@
+"use client";
+
 import React from "react";
-import BranchNavbar from "./Navbar/Branch";
 import DCNavbar from "./Navbar/DC";
 import AdminNavbar from "./Navbar/Admin";
 import LoginNavbar from "./Navbar/Login";
+import { useSession } from "next-auth/react";
 
-interface NavbarInterface {
-  session: any;
-}
-
-function Navbar({ session }: NavbarInterface) {
-  if (session) {
-    return session.user.role === "admin" ? (
-      <AdminNavbar session={session} />
-    ) : (
-      <DCNavbar session={session} />
-    );
+function Navbar() {
+  const { data: session } = useSession();
+  if (session?.user) {
+    return session.user.role === "admin" ? <AdminNavbar /> : <DCNavbar />;
   } else {
     return <LoginNavbar />;
   }

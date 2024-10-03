@@ -26,9 +26,8 @@ const isEqual = (obj1: any, obj2: any) => {
 };
 
 function ProfilePage({ params }: ProfilePageProps) {
-  const { data: session, status } = useSession();
-
-  if (status === "unauthenticated") redirect("/login");
+  const { data: session } = useSession();
+  const accessToken = session?.user.accessToken;
 
   const [isEdit, setIsEdit] = useState(false);
   const [isSelectingAP, setIsSelectingAP] = useState(false);
@@ -39,16 +38,19 @@ function ProfilePage({ params }: ProfilePageProps) {
   const [userData, setUserData] = useState<UserType>();
   // newUserData
   const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState<string | undefined>();
   const [role, setRole] = useState("");
   const [branch, setBranch] = useState("");
-  const [ap, setAP] = useState<APType[]>([]);
+  const [rack, setRack] = useState("");
+  const [ap, setAP] = useState<string[]>([]);
 
   const { id } = params;
 
   const handleGetUserById = async () => {
     try {
+      // if (!accessToken) return;
       const user = await getUserById(id);
+      // console.log(user);
       if (user) {
         setName(user.name);
         setPassword(user.password);
@@ -56,6 +58,7 @@ function ProfilePage({ params }: ProfilePageProps) {
         setBranch(user.branch);
         setAP(user.ap);
         setUserData(user);
+        setRack(user.rack);
       }
     } catch (err) {
       console.log("Error, get user by id. :", err);
@@ -65,6 +68,9 @@ function ProfilePage({ params }: ProfilePageProps) {
   const handleGetRolesNBranches = async () => {
     try {
       const { roles, branches } = await getRolesNBranches();
+      if (!roles.length || !branches.length) {
+        return;
+      }
 
       setRoles(session?.user.role === "admin" ? [...roles, "admin"] : roles);
       setBranches(branches);
@@ -82,12 +88,13 @@ function ProfilePage({ params }: ProfilePageProps) {
     try {
       // check data b4 edit
       const newUserData: UserType = {
-        username: session.user?.username, // just type error every thing ok
+        username: session.user?.username,
         name,
         password,
         role,
         branch,
         ap,
+        rack,
       };
       const isChange = !isEqual(userData, newUserData);
       if (!isChange) {
@@ -124,7 +131,6 @@ function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div>
-      <Navbar session={session} />
       {isSelectingAP && (
         <ApSelector
           onClose={() => setIsSelectingAP(false)}
@@ -157,6 +163,10 @@ function ProfilePage({ params }: ProfilePageProps) {
               }}
               className="flex flex-col gap-4 min-h-[350px]"
             >
+              <div className="grid grid-cols-4 gap-2 items-center">
+                <p>id:</p>
+                <p className="p-2 w-full col-span-3">{id}</p>
+              </div>
               <div className="grid grid-cols-4 gap-2 items-center">
                 <label htmlFor="name">name:</label>
                 <input
@@ -218,11 +228,24 @@ function ProfilePage({ params }: ProfilePageProps) {
                 </select>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
+                <label htmlFor="rack">rack:</label>
+                <input
+                  type="text"
+                  name="rack"
+                  id="rack"
+                  value={rack}
+                  onChange={(e) => {
+                    setRack(e.target.value);
+                  }}
+                  className="p-2 border rounded-md shadow-md w-full col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-2 items-center">
                 <label htmlFor="ap">ap:</label>
                 <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
-                    <p className="p-2 bg-gray-300 rounded" key={a.code}>
-                      {a.name}
+                    <p className="p-2 bg-gray-300 rounded" key={a}>
+                      {a}
                     </p>
                   ))}
                 </div>
@@ -244,13 +267,17 @@ function ProfilePage({ params }: ProfilePageProps) {
           ) : (
             <div className="flex flex-col gap-4 min-h-[350px]">
               <div className="grid grid-cols-4 gap-2 items-center">
+                <p>id:</p>
+                <p className="p-2 w-full col-span-3">{id}</p>
+              </div>
+              <div className="grid grid-cols-4 gap-2 items-center">
                 <p>name:</p>
                 <p className="p-2 w-full col-span-3">{name}</p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
                 <p>password:</p>
                 <p className="p-2 w-full col-span-3">
-                  {"*".repeat(password.length)}
+                  {password && "*".repeat(password.length)}
                 </p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
@@ -262,11 +289,15 @@ function ProfilePage({ params }: ProfilePageProps) {
                 <p className="p-2 w-full col-span-3">{branch}</p>
               </div>
               <div className="grid grid-cols-4 gap-2 items-center">
+                <p>rack:</p>
+                <p className="p-2 w-full col-span-3">{rack}</p>
+              </div>
+              <div className="grid grid-cols-4 gap-2 items-center">
                 <p>ap:</p>
                 <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
-                    <p className="p-2 bg-gray-300 rounded" key={a.code}>
-                      {a.name}
+                    <p className="p-2 bg-gray-300 rounded" key={a}>
+                      {a}
                     </p>
                   ))}
                 </div>

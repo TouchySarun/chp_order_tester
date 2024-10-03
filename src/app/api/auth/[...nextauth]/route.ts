@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions, Session, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getUser } from "../../../../lib/user";
+import axios, { setAccessToken } from "../../axios";
 
 interface Credentials {
   username: string;
@@ -11,9 +11,15 @@ interface UserTypeAuth extends User {
   id: string;
   username: string;
   name: string;
-  password: string;
   role: string;
   branch: string;
+  rack: string;
+  password: string;
+  accessToken: string;
+}
+
+interface UserSession extends Session {
+  user: UserTypeAuth;
 }
 
 const authOptions: NextAuthOptions = {
@@ -23,34 +29,31 @@ const authOptions: NextAuthOptions = {
       credentials: {},
       async authorize(credentials, req): Promise<UserTypeAuth | null> {
         if (!credentials) {
-          return null;
+          throw new Error("No credentials provided");
         }
-
         const { username, password } = credentials as Credentials;
-
         try {
-          // get user from database
-          const user = await getUser(username);
-          if (!user.ok) {
-            console.log("Fail to log in, can't find username");
-            return null;
+          const res = await axios.post("/login", { username, password });
+          const user = res.data;
+          if (user.error) {
+            throw new Error(user.error);
+          } else {
+            console.log("set access token, ", user.accessToken);
+            setAccessToken(user.accessToken);
+            return user as UserTypeAuth;
           }
-          // check user's password
-          if (password !== user.data?.password) {
-            console.log("Fail to log in, wrong password");
-            return null;
-          }
-          // return user
-          return user.data as UserTypeAuth;
         } catch (err) {
-          console.log(err);
-          return null;
+          throw err;
         }
       },
     }),
   ],
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 2 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 2 * 60,
   },
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
@@ -61,25 +64,19 @@ const authOptions: NextAuthOptions = {
       if (user) {
         return {
           ...token,
-          id: (user as UserTypeAuth).id,
-          role: (user as UserTypeAuth).role,
-          username: (user as UserTypeAuth).username,
-          branch: (user as UserTypeAuth).branch,
+          ...user,
         };
       }
       return token;
     },
-    async session({ token, session }) {
+    async session({ session, token }) {
       return {
         ...session,
         user: {
           ...session.user,
-          id: token.id,
-          role: token.role,
-          username: token.username,
-          branch: token.branch,
-        } as UserType,
-      };
+          ...token,
+        },
+      } as UserSession;
     },
   },
 };

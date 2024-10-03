@@ -13,7 +13,8 @@ function LoginPage() {
   const router = useRouter();
 
   const { data: session, status } = useSession();
-  if (status === "authenticated") router.replace("/");
+
+  if (session && session.user) router.replace("/");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,14 +25,8 @@ function LoginPage() {
         password,
         redirect: false,
       });
-      if (res?.ok) {
-        console.log("login success");
-        console.log(res);
-
-        // router.replace("/order");
-      } else {
-        console.log("login error", res?.error);
-        return;
+      if (res?.error) {
+        setError(res.error);
       }
     } catch (err) {
       console.log(err);

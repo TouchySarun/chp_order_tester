@@ -9,6 +9,6 @@ interface SystemResType {
 export const getRolesNBranches = async () => {
   const docRef = doc(db, "system", "xha5ZEDMbeh5PCOWwGYJ");
   const docSnap = await getDoc(docRef);
-  console.log(docSnap.data());
+  // console.log(docSnap.data());
   return docSnap.data() as SystemResType;
 };

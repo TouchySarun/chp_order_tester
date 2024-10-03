@@ -1,9 +1,8 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
-import React from "react";
-import Navbar from "../components/navbar";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { setAccessToken } from "../api/axios";
 
 interface JobsInterface {
   name: string;
@@ -12,8 +11,7 @@ interface JobsInterface {
 }
 
 function WelcomePage() {
-  const { data: session, status } = useSession();
-  if (status === "unauthenticated") redirect("/login");
+  const { data: session } = useSession();
 
   const role = session?.user.role;
   const getLink = () => {
@@ -72,10 +70,15 @@ function WelcomePage() {
     }
     return jobs;
   };
+  useEffect(() => {
+    if (session?.user?.accessToken) {
+      console.log("set user access token, ", session.user.accessToken);
+      setAccessToken(session.user.accessToken);
+    }
+  }, [session]);
 
   return (
     <div>
-      <Navbar session={session} />
       <div className="container mx-auto py-10 px-5">
         <h1 className="text-xl">Welcome</h1>
         <div className="w-full flex justify-center flex-col mt-4 gap-4 px-4">
