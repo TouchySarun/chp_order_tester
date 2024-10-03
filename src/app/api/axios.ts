@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     if (token) {
-      config.headers.authorization = token;
+      config.headers.Authorization = token;
     }
     return config;
   },

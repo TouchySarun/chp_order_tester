@@ -38,6 +38,7 @@ const authOptions: NextAuthOptions = {
           if (user.error) {
             throw new Error(user.error);
           } else {
+            console.log("set access token, ", user.accessToken);
             setAccessToken(user.accessToken);
             return user as UserTypeAuth;
           }

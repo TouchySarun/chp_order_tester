@@ -37,7 +37,7 @@ export const getUser = async (username: string) => {
 export const getUserById = async (id: string) => {
   try {
     const res = await axios.get(`users/${id}`);
-    console.log(res);
+    console.log(res.data);
     const user = await res.data;
     if (user.error) {
       throw new Error(user.error);
@@ -72,31 +72,18 @@ export const addUser = async (user: UserRegisterType) => {
   return newUser;
 };
 // edit
-export const editUser = async (userId: string, user: UserType) => {
+export const editUser = async (id: string, user: UserType) => {
   try {
-    const document = doc(db, `users/${userId}`);
-    await setDoc(document, user, { merge: true });
+    console.log(user);
+
+    const res = await axios.put(`users/${id}`, { ...user });
+    console.log(res);
     return true;
   } catch (err) {
     console.log("Fail edit user. :", err);
     return false;
   }
 };
-
-// //delete
-// export const deleteHotel = async (hotelId: string) => {
-//   // get old document for ref
-//   const document = doc(firestore, `Hotel/${hotelId}`);
-//   // deleteDoc need ref to delete
-//   await deleteDoc(document);
-//   console.log("Success delete Hotel Id :", hotelId);
-// };
-
-// export const editHotel = async (hotelId: string, hotel: HotelType) => {
-//   const document = doc(firestore, `Hotel/${hotelId}`);
-//   await setDoc(document, hotel, { merge: true });
-//   console.log("Success update hotel");
-// };
 
 export const getUsers = () => {
   return [
@@ -106,20 +93,7 @@ export const getUsers = () => {
       name: "สมชัย พารวย",
       role: "pc",
       branch: "dc",
-      ap: [
-        {
-          id: "2",
-          code: "2",
-          name: "สหพัฒน์ มาม่า",
-          remark: "-",
-        },
-        {
-          id: "3",
-          code: "3",
-          name: "สหพัฒน์ เปา",
-          remark: "-",
-        },
-      ],
+      ap: [""],
     },
     {
       id: "2",
@@ -127,20 +101,7 @@ export const getUsers = () => {
       name: "ใจดี มีตัง",
       role: "pc",
       branch: "dc",
-      ap: [
-        {
-          id: "2",
-          code: "2",
-          name: "สหพัฒน์ มาม่า",
-          remark: "-",
-        },
-        {
-          id: "3",
-          code: "3",
-          name: "สหพัฒน์ เปา",
-          remark: "-",
-        },
-      ],
+      ap: [],
     },
     {
       id: "3",
@@ -148,14 +109,7 @@ export const getUsers = () => {
       name: "มาดี ลีลา",
       role: "pc",
       branch: "dc",
-      ap: [
-        {
-          id: "1",
-          code: "1",
-          name: "บุญรอดเทรดดิ้ง",
-          remark: "-",
-        },
-      ],
+      ap: [],
     },
     {
       id: "4",

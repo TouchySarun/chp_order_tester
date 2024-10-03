@@ -72,6 +72,7 @@ function WelcomePage() {
   };
   useEffect(() => {
     if (session?.user?.accessToken) {
+      console.log("set user access token, ", session.user.accessToken);
       setAccessToken(session.user.accessToken);
     }
   }, [session]);
