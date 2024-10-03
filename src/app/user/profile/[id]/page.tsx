@@ -42,7 +42,7 @@ function ProfilePage({ params }: ProfilePageProps) {
   const [role, setRole] = useState("");
   const [branch, setBranch] = useState("");
   const [rack, setRack] = useState("");
-  const [ap, setAP] = useState<APType[]>([]);
+  const [ap, setAP] = useState<string[]>([]);
 
   const { id } = params;
 
@@ -244,8 +244,8 @@ function ProfilePage({ params }: ProfilePageProps) {
                 <label htmlFor="ap">ap:</label>
                 <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
-                    <p className="p-2 bg-gray-300 rounded" key={a.code}>
-                      {a.name}
+                    <p className="p-2 bg-gray-300 rounded" key={a}>
+                      {a}
                     </p>
                   ))}
                 </div>
@@ -296,8 +296,8 @@ function ProfilePage({ params }: ProfilePageProps) {
                 <p>ap:</p>
                 <div className="p-2 w-full col-span-2 flex gap-2 flex-wrap">
                   {ap.map((a) => (
-                    <p className="p-2 bg-gray-300 rounded" key={a.code}>
-                      {a.name}
+                    <p className="p-2 bg-gray-300 rounded" key={a}>
+                      {a}
                     </p>
                   ))}
                 </div>

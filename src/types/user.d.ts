@@ -11,7 +11,7 @@ interface UserType {
   password?: string;
   role: string;
   branch: string;
-  ap: APType[]; // user that ap = [] then my employee
+  ap: string[]; // user that ap = [] then my employee
   rack: string;
 }
 interface UserRegisterType {

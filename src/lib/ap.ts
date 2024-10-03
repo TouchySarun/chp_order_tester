@@ -4,34 +4,14 @@ import { db } from "../../firebaseConfig";
 const apCollection = collection(db, "aps");
 
 export const getAps = async () => {
-  const docSnap = await getDocs(apCollection);
+  // const docSnap = await getDocs(apCollection);
 
-  return docSnap.docs.map((doc) => doc.data()) as APType[];
+  // return docSnap.docs.map((doc) => doc.data());
 
   return [
-    {
-      id: "1",
-      code: "1",
-      name: "บุญรอดเทรดดิ้ง",
-      remark: "-",
-    },
-    {
-      id: "2",
-      code: "2",
-      name: "สหพัฒน์ มาม่า",
-      remark: "-",
-    },
-    {
-      id: "3",
-      code: "3",
-      name: "สหพัฒน์ เปา",
-      remark: "-",
-    },
-    {
-      id: "4",
-      code: "4",
-      name: "บริษัท สมมุตินะถ้ามีเจ้าหนี้ที่ชื่อยาวมากจริงๆ ก็จะประมาณนี้ จำกัด มหาชน",
-      remark: "-",
-    },
+    "1111 - บุญรอดเทรดดิ้ง",
+    "2222 - สหพัฒน์ มาม่า",
+    "3333 - สหพัฒน์ เปา",
+    "12345 - บริษัท สมมุตินะถ้ามีเจ้าหนี้ที่ชื่อยาวมากจริงๆ ก็จะประมาณนี้ จำกัด มหาชน",
   ];
 };
